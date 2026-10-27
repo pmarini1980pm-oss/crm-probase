@@ -12,7 +12,13 @@ if "CRM_SETUP_TOKEN" not in text or "setup_token" not in text:
     if old not in text:
         raise SystemExit('patch server setup: padrão não encontrado')
     text = text.replace(old, new, 1)
-    server.write_text(text)
+
+watch_marker = '# DEMO_SEED_WATCHER_V1'
+if watch_marker not in text:
+    prefix = '''# DEMO_SEED_WATCHER_V1\nimport threading as _demo_threading\nimport time as _demo_time\nfrom seed_demo import seed_if_possible as _demo_seed_if_possible\n\ndef _demo_seed_watch():\n    while True:\n        try:\n            _ok, _status = _demo_seed_if_possible()\n            print('DEMO_SEED', _ok, _status, flush=True)\n            if _ok:\n                return\n        except Exception as _exc:\n            print('DEMO_SEED_ERROR', repr(_exc), flush=True)\n        _demo_time.sleep(5)\n\n_demo_threading.Thread(target=_demo_seed_watch, daemon=True, name='demo-seed').start()\n\n'''
+    text = prefix + text
+
+server.write_text(text)
 
 app = Path('crm/static/app.js')
 text = app.read_text()
