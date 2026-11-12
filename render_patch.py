@@ -35,3 +35,7 @@ if logo_deploy.exists():
     logo.write_bytes(logo_deploy.read_bytes())
 
 print('Preparação de publicação concluída.')
+
+# Minimal security baseline; fail the build rather than silently skip it.
+import runpy
+runpy.run_path('security/essential_patch.py', run_name='__main__')
